@@ -1,0 +1,7 @@
+# Direct dependency versions used to validate the portfolio on Python 3.11.7.
+# Install from the repository: pip install -e '.[showcase,test]' -c requirements-reproduce.txt
+numpy==1.26.4
+mujoco==3.4.0
+matplotlib==3.8.0
+Pillow==10.2.0
+pytest==7.4.0

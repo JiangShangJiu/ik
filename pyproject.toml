@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ik"
+version = "0.0.1"
+description = "Multi-robot inverse kinematics: closed form, redundancy and numerical methods on MuJoCo"
+requires-python = ">=3.10"
+dependencies = ["numpy", "mujoco>=3.4"]
+
+[project.optional-dependencies]
+showcase = ["mujoco>=3.4", "matplotlib>=3.6", "Pillow>=9.2"]
+test = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+include = ["ik*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

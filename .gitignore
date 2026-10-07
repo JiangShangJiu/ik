@@ -1,0 +1,22 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/
+
+# Reproducible render intermediates and local distribution bundles
+/build/
+/dist/
+/docs/homepage/ik-homepage.zip
+
+# Editor and machine-local configuration
+.DS_Store
+.idea/
+.vscode/
+/.agents/
+/.codex/
+/.aws/
