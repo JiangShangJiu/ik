@@ -33,7 +33,7 @@ python -m scripts.showcase.export_homepage
 
 默认从已保存的 `docs/homepage/public/` 打包，无需模型或 OpenGL 渲染。当 `build/showcase/` 已具备页面引用的完整一套原始结果时，可用 `python -m scripts.showcase.export_homepage --from-render` 从 `build/showcase/` 转换并导出页面引用集；它会检查所有输入，不能用于仅有一组渲染的部分导入。
 
-[inverse-kinematics.md](homepage/inverse-kinematics.md) 按现有 Astro 项目的 `projects` 字段编写，包含 `heroImage`、`featureVideo`、`resultFigures`、`highlights` 和 `math: true`。发布素材只保留该页面引用的 **37 个文件：16 张 WebP、16 段 MP4、5 份 JSON**。图片包括封面、技术图、静态构型图集及视频封面；视频包括固定末端多解、直线、末端圆周与 iiwa 整圈诊断；数据对应下文五个实验阶段。
+[inverse-kinematics.md](homepage/inverse-kinematics.md) 按现有 Astro 项目的 `projects` 字段编写，包含 `heroImage`、`previewVideos`、`featureVideo`、`resultFigures`、`highlights` 和 `math: true`。发布素材只保留该页面引用的 **37 个文件：16 张 WebP、16 段 MP4、5 份 JSON**。图片包括封面、技术图、静态构型图集及视频封面；视频包括固定末端多解、直线、末端圆周与 iiwa 整圈诊断；数据对应下文五个实验阶段。
 
 本地生成的 `build/ik-homepage.zip` 内部使用站点的目录结构：
 
@@ -44,6 +44,17 @@ python -m scripts.showcase.export_homepage
 
 将压缩包解压到个人主页仓库根目录，再按正常 Astro 流程构建、预览和发布。也可以把本仓库的 `docs/homepage/inverse-kinematics.md` 复制到站点的 `src/content/projects/`，再将 `docs/homepage/public/assets/` 下对应的三个资源目录合并到站点 `public/assets/`。正文使用 `/assets/` 绝对路径，项目页路由保持为 `/projects/inverse-kinematics/`。其他 Astro 站点需先适配自己的内容 schema 和页面组件，数学公式渲染需支持 `math: true`。
 
+当前个人站点还提供同步脚本。在 `jiangshangjiu.github.io` 仓库根目录运行：
+
+```bash
+python3 scripts/sync_ik_showcase_media.py --repo /path/to/ik
+npm run build
+```
+
+脚本先检查正文引用的完整发布资源，再原样复制 Markdown 与 37 项素材，并清理三个 IK 专用资源目录中已无源码引用的旧文件。其他页面仍在引用的文件会保留。正文的四联视频按 12:11、iiwa 诊断视频按 8:5 展示，与原始视频一致。
+
+站点通过 `previewVideos` 在首页与成果列表中播放直线、圆周两段四联动态预览，`featureVideo` 则在项目详情标题下显示固定末端多解主视频；IK 的 `aspectRatio` 为 `"12 / 11"`。正文另外嵌入其余 15 段视频，分型号片放在展开区，加载前不预取。独立接入其他 Astro 模板时，需要实现相同的预览和主视频渲染，或将视频直接写入正文。
+
 渲染和打包命令只操作本仓库，不会修改或部署个人站点。
 
 ## 管线与数据
@@ -52,7 +63,7 @@ python -m scripts.showcase.export_homepage
 
 `solution_gallery` 生成四型号静态多解总览与每台八构型图集。UR5e、Lite 6 展示离散闭式候选；iiwa 按臂型角选择代表样本；Panda 扫描 q7，再从通过数值求解与验收的内部候选中选取样本。记录见 [solution_metrics.json](homepage/public/assets/data/inverse-kinematics/solution_metrics.json)。
 
-`pose_gallery` 生成当前首页主动画：四段各 240 帧、20 fps、12 秒，共 960 帧。UR5e、Lite 6 的八个独立闭式候选各停留 1.5 秒，直接切换，不插值；iiwa 在 ψ = 6°–156° 的稳定合法展示弧往返；Panda 逐帧给定 q7，仅对其余六关节做 DLS 修正。固定末端实验的逐帧误差、限位和相邻构型变化见 [pose_metrics.json](homepage/public/assets/data/inverse-kinematics/pose_metrics.json)。六轴跳切不表示连续换支轨迹。
+`pose_gallery` 生成项目详情页的固定末端主动画：四段各 240 帧、20 fps、12 秒，共 960 帧。UR5e、Lite 6 的八个独立闭式候选各停留 1.5 秒，直接切换，不插值；iiwa 在 ψ = 6°–156° 的稳定合法展示弧往返；Panda 逐帧给定 q7，仅对其余六关节做 DLS 修正。固定末端实验的逐帧误差、限位和相邻构型变化见 [pose_metrics.json](homepage/public/assets/data/inverse-kinematics/pose_metrics.json)。六轴跳切不表示连续换支轨迹。
 
 `swivel_gallery` 生成当前 iiwa 目标的整圈诊断图和解释动画。0.25° 网格含两端共 1441 个采样角，每角有 2–8 个合法候选，共 9414 条合法采样记录，包含周期端点，不能称为互异解数量。保留所有返回的合法候选，分别用 0.15 / 0.30 rad 邻接阈值检查连接图，并检查肘圆水平投影与肩轴、J1 行程的关系。沿当前支的最后合法采样点为 172.75°，173° 因 J7 低限越界被拒绝；最近替代候选与末个合法构型之差约 4.43 rad，只针对该下一采样角。动画前 9 秒延拓，后 3 秒停住；重播需要跳切，不能计作连续循环。结论限定于本目标、模型限位与扫描设置，数据见 [swivel_metrics.json](homepage/public/assets/data/inverse-kinematics/swivel_metrics.json)。
 
